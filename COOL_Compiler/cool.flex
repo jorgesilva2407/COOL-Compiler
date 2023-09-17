@@ -55,7 +55,49 @@ extern YYSTYPE cool_yylval;
  * Define names for regular expressions here.
  */
 
-DARROW          =>
+DARROW           =>
+LE               <=
+ASSIGN           <-
+
+LOWERCASE_LETTER [a-z]
+UPPERCASE_LETTER [A-Z]
+LETTER		 ({LOWERCASE_LETTER}|{UPPERCASE_LETTER})
+DIGIT            [0-9]
+BLANK            " "
+NEWLINE          \n
+BINOP 		 ("+"|"-"|"*"|\/)
+UNOP		 
+
+INTEGER 	 {DIGIT}+ 
+TYPEID		 ("SELF_TYPE"|{UPPERCASE_LETTER}({LETTER}|{DIGIT}|"_")*)	 
+ID               ("self"|{LOWERCASE_LETTER}({LETTER}|{DIGIT}|"_")*)
+STRING		 \"
+
+SINGLE_LINE_COMMENT ("--") 
+MULTILINE_COMMENT_START ("\(\*")
+MULTILINE_COMMENT_END ("\*\)")
+
+CLASS		 (?i:class)
+ELSE		 (?i:else)
+FI		 (?i:fi)	
+IF		 (?i:if)	
+IN		 (?i:in)
+INHERITS	 (?i:inherits)	
+ISVOID		 (?i:isvoid)
+LET		 (?i:let)
+LOOP		 (?i:loop)
+POOL		 (?i:pool)
+THEN		 (?i:then)
+WHILE		 (?i:while)	
+CASE  		 (?i:case)
+ESAC		 (?i:esac)
+NEW		 (?i:new)	
+OF		 (?i:of)
+NOT  		 (?i:not)
+FALSE  		 (f)(?i:alse)
+TRUE		 (t)(?i:rue)	
+
+WS		 {BLANK|NEWLINE|\f|\r|\t|\v}
 
 %%
 
