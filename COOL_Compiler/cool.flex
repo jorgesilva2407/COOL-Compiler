@@ -49,11 +49,18 @@ extern YYSTYPE cool_yylval;
  *  Add Your own definitions here
  */
 
+char string_const[MAX_STR_CONST];
+int string_const_len;
+bool str_contain_null_char;
+
 %}
 
 /*
  * Define names for regular expressions here.
  */
+
+%option noyywrap
+%x LINE_COMMENT BLOCK_COMMENT STRING
 
 DARROW           =>
 LE               <=
@@ -105,14 +112,33 @@ NOT  		 (?i:not)
 FALSE  		 (f)(?i:alse)
 TRUE		 (t)(?i:rue)	
 
-WS		 {BLANK|NEWLINE|\f|\r|\t|\v}
+WS		 {BLANK|\f|\r|\t|\v}
 
 %%
+
+NEWLINE		{curr_lineo++;}
+WS+		{}
 
  /*
   *  Nested comments
   */
 
+{SINGLE_LINE_COMMENT_DELIMITER}		{BEGIN LINE_COMMENT;}
+{MULTILINE_COMMENT_START} 		{BEGIN BLOCK_COMMENT;}
+{MULTILINE_COMMENT_END} 		{strcpy(cool_yylval.error_msg, "Unmatched *)");
+				 	 return (ERROR);}
+
+<LINE_COMMENT>({NEWLINE}|<<EOF>>)	{BEGIN 0;
+				 	 curr_lineno++;}
+
+
+<BLOCK_COMMENT>{NEWLINE}		{curr_lineno++;}
+<BLOCK_COMMENT>{MULTILINE_COMMENT_END}	{BEGIN 0;}
+<BLOCK_COMMENT><<EOF>>			{strcpy(cool_yylval.error_msg, "EOF in comment");
+					 BEGIN 0;	
+				 	 return (ERROR);}
+<LINE_COMMENT>.				{}
+<BLOCK_COMMENT>.			{}
 
  /*
   *  The multiple-character operators.
@@ -121,6 +147,20 @@ WS		 {BLANK|NEWLINE|\f|\r|\t|\v}
 {DARROW}	{return (DARROW);}
 {LE}            {return (LE);}
 {ASSIGN} 	{return (ASSIGN);}
+
+ /*
+  *  The single-character operators.
+  */
+
+{BINOP} 	   {return (BINOP);}	 
+{SPECIAL_SYMBOLS}  {return (SPECIAL_SYMBOLS);}
+
+{OPEN_PARENTHESES}  "("
+{CLOSE_PARENTHESES} ")" 
+{OPEN_BRACES}       "{"
+{CLOSE_BRACES}      "}"
+{OPEN_BRACKETS}     "["
+{CLOSE_BRACKETS}    "]"
 
  /*
   * Keywords are case-insensitive except for the values true and false,
@@ -145,6 +185,11 @@ WS		 {BLANK|NEWLINE|\f|\r|\t|\v}
 {OF}        {return (OF);}
 {NOT}       {return (NOT);}
 
+{TRUE}      {cool_yylval.boolean = 1;
+	     return BOOL_CONST}
+{FALSE}	    {cool_yylval.boolean = 0;
+	     return BOOL_CONST}
+
  /*
   *  String constants (C syntax)
   *  Escape sequence \c is accepted for all characters c. Except for 
@@ -152,5 +197,64 @@ WS		 {BLANK|NEWLINE|\f|\r|\t|\v}
   *
   */
 
+{STRING_DELIMITER}	{memset(string_cont, 0, sizeof string_const);
+			 string_const_len = 0;
+			 str_contain_null_char = false;
+			 BEGIN STRING;}
+<STRING><<EOF>>		{strcpy(cool_yylval.error_msg, "EOF in string constant");
+			 BEGIN 0;
+			 return (ERROR);}
+<STRING>\\.		{if (string_const_len >= MAX_STR_CONST) {
+			 	strcpy(cool_yylval.error_msg, "String constant too long");
+			 	BEGIN 0;
+			 	return (ERROR);
+			} 
+			switch(yytext[1]) {
+				case '\"': string_const[string_const_len++] = '\"'; break;
+				case '\\': string_const[string_const_len++] = '\\'; break;
+				case 'b' : string_const[string_const_len++] = '\b'; break;
+				case 'f' : string_const[string_const_len++] = '\f'; break;
+				case 'n' : string_const[string_const_len++] = '\n'; break;
+				case 't' : string_const[string_const_len++] = '\t'; break;
+				case '0' : string_const[string_const_len++] = 0; 
+			   	str_contain_null_char = true; break;
+				default  : string_const[string_const_len++] = yytext[1];
+			}}
+<STRING>\\{NEWLINE}	{curr_lineno++;}
+<STRING>{NEWLINE}	{curr_lineno++;
+			 strcpy(cool_yylval.error_msg, "Unterminated string constant");
+			 BEGIN 0;
+			 return (ERROR);}
+<STRING>{STRING_DELIMITER} {if (string_const_len > 1 && str_contain_null_char) {
+			    	strcpy(cool_yylval.error_msg, "String contains null character");
+				BEGIN 0;
+			   	return (ERROR);
+			   }
+			   cool_yylval.symbol = stringtable.add_string(string_const);
+			   BEGIN 0;
+			   return (STR_CONST);}
+<STRING>.		   {if (string_const_len >= MAX_STR_CONST) {
+				strcpy(cool_yylval.error_msg, "String constant too long");
+				BEGIN 0;
+				return (ERROR);} 
+			   string_const[string_const_len++] = yytext[0];}
+
+ /*
+  *  Integers and ID`s.
+  */
+
+{INTEGER}  		{cool_yylval.symbol = inttable.add_string(yytext); 
+			 return (INT_CONST);}
+{TYPEID}		{cool_yylval.symbol = idtable.add_string(yytext);
+			 return (TYPEID);}
+{ID}			{cool_yylval.symbol = idtable.add_string(yytext);
+			 return (OBJECTID);}
+
+ /*
+  *  Default rule.
+  */
+
+.			{strcpy(cool_yylval.error_msg, yytext); 
+			 return (ERROR);}
 
 %%
