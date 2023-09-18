@@ -65,17 +65,25 @@ LETTER		 ({LOWERCASE_LETTER}|{UPPERCASE_LETTER})
 DIGIT            [0-9]
 BLANK            " "
 NEWLINE          \n
-BINOP 		 ("+"|"-"|"*"|\/)
-UNOP		 
+UNDERSCORE       "_"
+BINOP 		 ("+"|"-"|"*"|\/|"="|"<")	 
+SPECIAL_SYMBOLS  ("~"|";"|":"|"."|","|"@")
+
+OPEN_PARENTHESES  "("
+CLOSE_PARENTHESES ")" 
+OPEN_BRACES       "{"
+CLOSE_BRACES      "}"
+OPEN_BRACKETS     "["
+CLOSE_BRACKETS    "]"
 
 INTEGER 	 {DIGIT}+ 
-TYPEID		 ("SELF_TYPE"|{UPPERCASE_LETTER}({LETTER}|{DIGIT}|"_")*)	 
-ID               ("self"|{LOWERCASE_LETTER}({LETTER}|{DIGIT}|"_")*)
-STRING		 \"
+TYPEID		 ("SELF_TYPE"|{UPPERCASE_LETTER}({LETTER}|{DIGIT}|{UNDERSCORE})*)	 
+ID               ("self"|{LOWERCASE_LETTER}({LETTER}|{DIGIT}|{UNDERSCORE})*)
+STRING_DELIMITER \"
 
-SINGLE_LINE_COMMENT ("--") 
-MULTILINE_COMMENT_START ("\(\*")
-MULTILINE_COMMENT_END ("\*\)")
+SINGLE_LINE_COMMENT_DELIMITER     ("--") 
+MULTILINE_COMMENT_START 	  ("\(\*")
+MULTILINE_COMMENT_END   	  ("\*\)")
 
 CLASS		 (?i:class)
 ELSE		 (?i:else)
@@ -109,13 +117,33 @@ WS		 {BLANK|NEWLINE|\f|\r|\t|\v}
  /*
   *  The multiple-character operators.
   */
-{DARROW}		{ return (DARROW); }
+
+{DARROW}	{return (DARROW);}
+{LE}            {return (LE);}
+{ASSIGN} 	{return (ASSIGN);}
 
  /*
   * Keywords are case-insensitive except for the values true and false,
   * which must begin with a lower-case letter.
   */
 
+{CLASS}     {return (CLASS);}
+{ELSE}      {return (ELSE);}
+{FI}        {return (FI);}
+{IF}        {return (IF);}
+{IN}        {return (IN);}
+{INHERITS}  {return (INHERITS);}
+{ISVOID}    {return (ISVOID);}
+{LET}       {return (LET);}
+{LOOP}      {return (LOOP);}
+{POOL}      {return (POOL);}
+{THEN}      {return (THEN);}
+{WHILE}     {return (WHILE);}
+{CASE}      {return (CASE);}
+{ESAC}      {return (ESAC);}
+{NEW}       {return (NEW);}
+{OF}        {return (OF);}
+{NOT}       {return (NOT);}
 
  /*
   *  String constants (C syntax)
