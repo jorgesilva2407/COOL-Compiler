@@ -70,18 +70,8 @@ LOWERCASE_LETTER [a-z]
 UPPERCASE_LETTER [A-Z]
 LETTER		 ({LOWERCASE_LETTER}|{UPPERCASE_LETTER})
 DIGIT            [0-9]
-BLANK            " "
 NEWLINE          \n
-UNDERSCORE       "_"
-BINOP 		 ("+"|"-"|"*"|\/|"="|"<")	 
-SPECIAL_SYMBOLS  ("~"|";"|":"|"."|","|"@")
-
-OPEN_PARENTHESES  "("
-CLOSE_PARENTHESES ")" 
-OPEN_BRACES       "{"
-CLOSE_BRACES      "}"
-OPEN_BRACKETS     "["
-CLOSE_BRACKETS    "]"
+UNDERSCORE       "_"	 
 
 INTEGER 	 {DIGIT}+ 
 TYPEID		 ("SELF_TYPE"|{UPPERCASE_LETTER}({LETTER}|{DIGIT}|{UNDERSCORE})*)	 
@@ -112,12 +102,12 @@ NOT  		 (?i:not)
 FALSE  		 (f)(?i:alse)
 TRUE		 (t)(?i:rue)	
 
-WS		 {BLANK|\f|\r|\t|\v}
+WS		 [ |\f|\r|\t|\v]
 
 %%
 
-NEWLINE		{curr_lineo++;}
-WS+		{}
+{NEWLINE}	{curr_lineno++;}
+{WS}+		{}
 
  /*
   *  Nested comments
@@ -128,9 +118,10 @@ WS+		{}
 {MULTILINE_COMMENT_END} 		{strcpy(cool_yylval.error_msg, "Unmatched *)");
 				 	 return (ERROR);}
 
-<LINE_COMMENT>({NEWLINE}|<<EOF>>)	{BEGIN 0;
+<LINE_COMMENT>{NEWLINE}			{BEGIN 0;
 				 	 curr_lineno++;}
-
+<LINE_COMMENT><<EOF>>			{BEGIN 0;
+				 	 curr_lineno++;}
 
 <BLOCK_COMMENT>{NEWLINE}		{curr_lineno++;}
 <BLOCK_COMMENT>{MULTILINE_COMMENT_END}	{BEGIN 0;}
@@ -151,16 +142,36 @@ WS+		{}
  /*
   *  The single-character operators.
   */
+	 
+ /*
+  * Operators
+  */
+"+" 		{return '+';}
+"-" 		{return '-';}
+"*" 		{return '*';}
+"/" 		{return '/';}
+"=" 		{return '=';}
+"<" 		{return '<';}
+"~" 		{return '~';}
+"@" 		{return '@';}
 
-{BINOP} 	   {return (BINOP);}	 
-{SPECIAL_SYMBOLS}  {return (SPECIAL_SYMBOLS);}
+ /*
+  * Ponctuations
+  */
+";" 		{return ';';}
+":" 		{return ':';}
+"." 		{return '.';}
+"," 		{return ',';}
 
-{OPEN_PARENTHESES}  "("
-{CLOSE_PARENTHESES} ")" 
-{OPEN_BRACES}       "{"
-{CLOSE_BRACES}      "}"
-{OPEN_BRACKETS}     "["
-{CLOSE_BRACKETS}    "]"
+ /*
+  * Brackets
+  */
+"(" 		{return '(';}
+")" 		{return ')';} 
+"{" 		{return '{';}
+"}" 		{return '}';} 
+"[" 		{return '[';}
+"]" 		{return ']';}
 
  /*
   * Keywords are case-insensitive except for the values true and false,
@@ -186,9 +197,9 @@ WS+		{}
 {NOT}       {return (NOT);}
 
 {TRUE}      {cool_yylval.boolean = 1;
-	     return BOOL_CONST}
+	     return BOOL_CONST;}
 {FALSE}	    {cool_yylval.boolean = 0;
-	     return BOOL_CONST}
+	     return BOOL_CONST;}
 
  /*
   *  String constants (C syntax)
@@ -197,7 +208,7 @@ WS+		{}
   *
   */
 
-{STRING_DELIMITER}	{memset(string_cont, 0, sizeof string_const);
+{STRING_DELIMITER}	{memset(string_const, 0, sizeof string_const);
 			 string_const_len = 0;
 			 str_contain_null_char = false;
 			 BEGIN STRING;}
