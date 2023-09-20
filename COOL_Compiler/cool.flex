@@ -170,8 +170,6 @@ WS		 [ |\f|\r|\t|\v]
 ")" 		{return ')';} 
 "{" 		{return '{';}
 "}" 		{return '}';} 
-"[" 		{return '[';}
-"]" 		{return ']';}
 
  /*
   * Keywords are case-insensitive except for the values true and false,
