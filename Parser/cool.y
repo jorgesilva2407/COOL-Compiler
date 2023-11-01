@@ -97,8 +97,8 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 %type <formal> formal
 %type <formals> formal_list
 
-%type <case_> case
-%type <cases> case_list
+%type <case_> branch
+%type <cases> branch_list
 
 %type <expression> expression
 %type <expression> block_expression
@@ -274,7 +274,7 @@ expression  :
               @$ = @2;
               $$ = block($2);
             }
-            | CASE expression OF case_list ESAC
+            | CASE expression OF branch_list ESAC
             {
               @$ = @5;
               $$ = typcase($2, $4);
@@ -378,23 +378,23 @@ block_expression  :
                     $$ = $1;
                   }
 
-case_list  : 
-          case 
+branch_list  : 
+          branch 
           {
             @$ = @1;
             $$ = single_Cases($1);
           }
-          | case_list case 
+          | branch_list branch 
           {
             @$ = @2;
             $$ = append_Cases($1, single_Cases($2));
           }
 
-case  : 
+branch  : 
         OBJECTID ':' TYPEID DARROW expression ';'
         {
           @$ = @6;
-          $$ = case($1, $3, $5);
+          $$ = branch($1, $3, $5);
         }
 
 arguments_expressions : 
