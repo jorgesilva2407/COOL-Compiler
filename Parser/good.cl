@@ -9,12 +9,12 @@ class Person {
   age: Int;
 
   init(name: String, age: Int): Person {
-    this.name = name;
-    this.age = age;
+    name = name;
+    age = age;
   }
 
   say_hello() {
-    print("Hello, my name is " + this.name);
+    print("Hello, my name is " + name);
   }
 };
 
@@ -23,11 +23,11 @@ class Student inherits Person {
 
   init(name: String, age: Int, school: String) {
     super.init(name, age);
-    this.school = school;
+    school = school;
   }
 
   say_hello() {
-    print("Hello, my name is " + this.name + " and I'm a student at " + this.school);
+    out_string("Hello, my name is ").out_string(name).out_string(" and I'm a student at ").out_string(school);
   }
 };
 
@@ -35,25 +35,25 @@ class Calculator {
   num1: Int;
   num2: Int;
 
-  init(num1: Int, num2: Int) {
-    this.num1 = num1;
-    this.num2 = num2;
+  init(num1_: Int, num2_: Int) {
+    num1 = num1_;
+    num2 = num2_;
   }
 
   add() {
-    return this.num1 + this.num2;
+    return num1 + num2;
   }
 
   subtract() {
-    return this.num1 - this.num2;
+    return num1 - num2;
   }
 
   multiply() {
-    return this.num1 * this.num2;
+    return num1 * num2;
   }
 
   divide() {
-    return this.num1 / this.num2;
+    return num1 / num2;
   }
 };
 
