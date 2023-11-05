@@ -90,8 +90,8 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 
 /* You will want to change the following line. */
 %type <feature> feature
-%type <feature> method_declaration
-%type <feature> attribute_declaration
+%type <feature> method
+%type <feature> attribute
 %type <features> feature_list
 
 %type <formal> formal
@@ -178,19 +178,19 @@ feature_list  :
           }
 
 feature : 
-        method_declaration ';'
+        method ';'
         {
             @$ = @2;
             $$ = $1;
         }
-        | attribute_declaration ';'
+        | attribute ';'
         {
           @$ = @2;
           $$ = $1;
         }
         | error ';' {  }
 
-method_declaration  : 
+method  : 
                     OBJECTID '(' formal_list ')' ':' TYPEID '{' expression '}'
                     {
                       @$ = @9;
@@ -198,7 +198,7 @@ method_declaration  :
                     }
                     ;
 
-attribute_declaration : 
+attribute : 
                       OBJECTID ':' TYPEID
                       {
                         @$ = @3;
