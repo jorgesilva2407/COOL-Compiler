@@ -132,3 +132,26 @@ Instructions
 
 Write-up for PA3
 ----------------
+Dupla : Jorge Augusto de Lima e Silva e Vitor Emanuel Ferreira Vital
+
+Decisoes de projeto:
+
+Além da defiição dos tipos para os onze não terminais presentes foram adicionados outros sete, a fim de facilitar
+a definição das regras.
+	1 - method - Definição do formato dos métodos da feature
+	2 - attribute - Definição do formato dos atributos da feature
+	3 - block_expression - Expressão sucedida de um ; indicando um bloco de expressão
+	4 - arguments_expressions - Facilita a definição recursiva e separada por ',' de expressões
+	5 - dispatch_expression - Definição dos possíveis formatos de chamadas de funções
+	6 - let_expression - Definição do formato de uma expressão let
+	7 - let_assign - Definição de atribuição em expressões let
+
+Definicoes das regras:
+
+As definicoes das regras utilizadas e sua respectiva denominacao visam melhor documentacao e entendimento do
+que expressa, muitos não terminais adicionados buscavam facilitar a lógica de definição de regras.
+
+Exemplos de Programas Cool: 
+
+Foram adicionados exemplos no formato correto que buscava explorar algumas regras definidas, como de classes, funções,
+chamadas de funções, condicionais, expressões let e outros. 
